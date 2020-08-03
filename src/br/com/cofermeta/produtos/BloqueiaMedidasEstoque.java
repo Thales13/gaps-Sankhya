@@ -5,10 +5,6 @@ import br.com.sankhya.extensions.eventoprogramavel.EventoProgramavelJava;
 import br.com.sankhya.jape.event.PersistenceEvent;
 import br.com.sankhya.jape.event.TransactionContext;
 import br.com.sankhya.jape.vo.DynamicVO;
-import groovy.sql.Sql;
-import org.springframework.jdbc.core.JdbcOperations;
-import sun.misc.MessageUtils;
-
 import java.math.BigDecimal;
 
 public class BloqueiaMedidasEstoque implements EventoProgramavelJava {
@@ -21,11 +17,11 @@ public class BloqueiaMedidasEstoque implements EventoProgramavelJava {
             DynamicVO produto = (DynamicVO) persistenceEvent.getVo();
 
             // campos que não podem ficar vazios
-            BigDecimal pesobrutoVO = produto.asBigDecimal("Produto.PESOBRUTO");
-            BigDecimal pesoliqVO = produto.asBigDecimal("Produto.PESOLIQ");
-            BigDecimal alturaVO = produto.asBigDecimal("Produto.ALTURA");
-            BigDecimal larguraVO = produto.asBigDecimal("Produto.LARGURA");
-            BigDecimal espessuraVO = produto.asBigDecimal("Produto.ESPESSURA");
+            BigDecimal pesobrutoVO = produto.asBigDecimal("PESOBRUTO");
+            BigDecimal pesoliqVO = produto.asBigDecimal("PESOLIQ");
+            BigDecimal alturaVO = produto.asBigDecimal("ALTURA");
+            BigDecimal larguraVO = produto.asBigDecimal("LARGURA");
+            BigDecimal espessuraVO = produto.asBigDecimal("ESPESSURA");
 
             //condicao: se o campo estiver vazio ocorre o erro
             if (pesobrutoVO.toString() == null || pesoliqVO.toString() == null || alturaVO.toString() == null || larguraVO.toString() == null || espessuraVO.toString() == null) {
@@ -42,8 +38,8 @@ public class BloqueiaMedidasEstoque implements EventoProgramavelJava {
 
     @Override
     public void beforeInsert(PersistenceEvent persistenceEvent) throws Exception {
-        // não deixa salvar a aba de Medidas e Estoques (Cadastro de Produtos) sem preencher todos os campos
         BloqueiaCampos(persistenceEvent);
+        // não deixa salvar a aba de Medidas e Estoques (Cadastro de Produtos) sem preencher todos os campos
     }
 
     @Override
