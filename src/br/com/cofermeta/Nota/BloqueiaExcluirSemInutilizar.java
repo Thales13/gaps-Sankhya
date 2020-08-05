@@ -49,6 +49,8 @@ public class BloqueiaExcluirSemInutilizar implements EventoProgramavelJava {
         //validação da inutilização da nota
         if(estaInutilizada(nota.asBigDecimal("NUMNOTA"),nota.asBigDecimal("CODEMP")) == false ) {
             MensagemUtils.disparaErro(ERRO_NAO_EXCLUI_SEM_INUTILIZACAO);
+        } else {
+            return;
         }
     }
 
