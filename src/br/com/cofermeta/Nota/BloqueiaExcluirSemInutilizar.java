@@ -18,17 +18,22 @@ public class BloqueiaExcluirSemInutilizar implements EventoProgramavelJava {
     private static final String ERRO_NAO_EXCLUI_SEM_INUTILIZACAO = "Não é possível excluir a nota sem fazer a inutilização";
 
     //criação de método que impede a exclusão da nota caso ainda não tenha sido inutilizada
-    public Boolean estaInutilizada (BigDecimal numNota, BigDecimal codEmp) throws Exception{
-        sql = new NativeSql(jdbc);
-        sql.appendSql("SELECT 1 FROM TGFINU WHERE NUMNOTA = :NUMNOTA AND CODEMP = :CODEMP");
-        sql.setNamedParameter("NUMNOTA",numNota);
-        sql.setNamedParameter("CODEMP",codEmp);
-        ResultSet rs = sql.executeQuery();
-        if (rs.next()){
-            return true;
+    public Boolean estaInutilizada (BigDecimal numNota, BigDecimal codEmp) throws Exception {
+        try {
+            sql = new NativeSql(jdbc);
+            sql.appendSql("SELECT 1 FROM TGFINU WHERE NUMNOTA = :NUMNOTA AND CODEMP = :CODEMP");
+            sql.setNamedParameter("NUMNOTA", numNota);
+            sql.setNamedParameter("CODEMP", codEmp);
+            ResultSet rs = sql.executeQuery();
+            if (rs.next()) {
+                return true;
+            }
+            return false;
+        } finally {
+            jdbc.closeSession();
         }
-        return false;
     }
+
 
     @Override
     public void beforeInsert(PersistenceEvent persistenceEvent) throws Exception {
@@ -47,7 +52,7 @@ public class BloqueiaExcluirSemInutilizar implements EventoProgramavelJava {
         jdbc = persistenceEvent.getJdbcWrapper();
 
         //validação da inutilização da nota
-        if(estaInutilizada(nota.asBigDecimal("NUMNOTA"),nota.asBigDecimal("CODEMP")) == false ) {
+        if(!estaInutilizada(nota.asBigDecimal("NUMNOTA"),nota.asBigDecimal("CODEMP"))) {
             MensagemUtils.disparaErro(ERRO_NAO_EXCLUI_SEM_INUTILIZACAO);
         } else {
             return;
