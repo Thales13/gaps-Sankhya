@@ -19,41 +19,38 @@ public class BloqueiaNulos implements EventoProgramavelJava {
     AcessoBanco acessoBanco;
 
     public void verificaNulosInsert(PersistenceEvent persistenceEvent) throws Exception {
-        try {
+        try{
             DynamicVO ordemInsert = (DynamicVO) persistenceEvent.getVo();
 
             BigDecimal nuitemaux = ordemInsert.asBigDecimal("NUMITEM");
-            // Verifica se o item inserido é o de Nro. 1, se for não irá fazer a verificação.
             if (nuitemaux == BigDecimal.valueOf(1))
-                return;
+            return;
 
             acessoBanco = new AcessoBanco();
 
             BigDecimal numOS = ordemInsert.asBigDecimal("NUMOS");
-
-            /*Sempre verifica a SubOS anterior a inserida, pois ao encaminhar a
-             nova SubOS sempre será inserida com os campos nulos*/
             BigDecimal nuitem = ordemInsert.asBigDecimal("NUMITEM").subtract(BigDecimal.valueOf(1));
 
             ResultSet prochoraini = acessoBanco.findOne("SELECT HRINICIAL " +
-                    "FROM TCSITE " +
-                    "WHERE NUMOS = " + numOS +
-                    "AND NUMITEM = " + nuitem);
+                "FROM TCSITE " +
+                "WHERE NUMOS = " + numOS +
+                "AND NUMITEM = " + nuitem);
             ResultSet prochorafin = acessoBanco.findOne("SELECT HRFINAL " +
-                    "FROM TCSITE " +
-                    "WHERE NUMOS = " + numOS +
-                    "AND NUMITEM = " + nuitem);
+                "FROM TCSITE " +
+                "WHERE NUMOS = " + numOS +
+                "AND NUMITEM = " + nuitem);
             ResultSet iniciexec = acessoBanco.findOne("SELECT INICEXEC " +
-                    "FROM TCSITE " +
-                    "WHERE NUMOS = " + numOS +
-                    "AND NUMITEM = " + nuitem);
+                "FROM TCSITE " +
+                "WHERE NUMOS = " + numOS +
+                "AND NUMITEM = " + nuitem);
             if (prochoraini.getString(1) == null ||
-                    prochorafin.getString(1) == null ||
-                    iniciexec.getString(1) == null) {
-                MensagemUtils.disparaErro(ERRO_CAMPOS_NAO_PODEM_SER_NULOS);
-            } else {
-                return;
+                prochorafin.getString(1) == null ||
+                iniciexec.getString(1) == null) {
+            MensagemUtils.disparaErro(ERRO_CAMPOS_NAO_PODEM_SER_NULOS);
+            }else {
+            return;
             }
+
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception(e.getMessage());
@@ -63,14 +60,13 @@ public class BloqueiaNulos implements EventoProgramavelJava {
         try {
             DynamicVO ordemVO = (DynamicVO) persistenceEvent.getVo();
             acessoBanco = new AcessoBanco();
-            //Tratamento da data
-            ResultSet rs = acessoBanco.findOne("SELECT\n" +
-                    "CASE WHEN LEN(DATEPART(HOUR,GETDATE())) = 1 \n" +
+            ResultSet rs = acessoBanco.findOne("SELECT CASE WHEN LEN(DATEPART(HOUR,GETDATE())) = 1 \n" +
                     "THEN concat(0,DATEPART(HOUR,GETDATE()), DATEPART(minute, getdate()))\n" +
                     "WHEN LEN(DATEPART(MINUTE,GETDATE())) = 1 \n" +
                     "THEN concat(DATEPART(HOUR,GETDATE()),0,DATEPART(minute, getdate()))\n" +
                     "WHEN LEN(DATEPART(HOUR,GETDATE())) = 1 AND LEN(DATEPART(MINUTE,GETDATE())) = 1 \n" +
-                    "THEN concat(0,DATEPART(HOUR,GETDATE()),0,DATEPART(minute, getdate())) END");
+                    "THEN concat(0,DATEPART(HOUR,GETDATE()),0,DATEPART(minute, getdate())) \n" +
+                    "ELSE concat(DATEPART(HOUR,GETDATE()), DATEPART(MINUTE, GETDATE())) END");
 
             ordemVO.setProperty("HRINICIAL", rs.getBigDecimal(1));
             ordemVO.setProperty("HRFINAL", rs.getBigDecimal(1));
